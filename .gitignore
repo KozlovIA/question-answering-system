@@ -1,0 +1,10 @@
+__pycache__
+chroma_storage
+dataset
+*.pdf*
+*.docx*
+*.txt*
+log
+help_prompts
+temp
+test.ipynb
