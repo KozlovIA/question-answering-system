@@ -1,0 +1,179 @@
+# %%
+from source.chroma_manager import ChromaDBManager, CustomEmbeddingFunction
+from tqdm import tqdm
+import yaml
+import sys
+import json 
+import pandas as pd
+
+# %% [markdown]
+# ### config
+
+# %%
+CONFIG_PATH_LIST = [
+    "config/embedding/all-MiniLM-L6-v2.yaml",
+    "config/embedding/all-mpnet-base-v2.yaml",
+    # "config/embedding/paraphrase-multilingual-MiniLM-L12-v2.yaml",
+    # "config/embedding/multi-qa-mpnet-base-dot-v1.yaml",
+    "config/embedding/LaBSE.yaml",
+    # "config/embedding/distiluse-base-multilingual-cased-v1.yaml",
+    "config/embedding/msmarco-distilbert-base-v4.yaml",
+    "config/embedding/multi-qa-MiniLM-L6-cos-v1.yaml",
+    "config/embedding/paraphrase-multilingual-mpnet-base-v2.yaml",
+    # "config/embedding/stsb-xlm-r-multilingual.yaml",
+    "config/embedding/gtr-t5-large.yaml",
+    "config/embedding/e5-large-v2.yaml",
+    "config/embedding/multilingual-e5-large.yaml"
+]
+
+config_path_question = "config/embedding/questions_gen.yaml"
+
+
+    # %%
+for CONFIG_PATH in CONFIG_PATH_LIST:
+    with open(CONFIG_PATH, "r") as file:
+        config = yaml.safe_load(file)
+
+    CHROMA_PATH = config["chroma_path"]
+    COLLECTION_NAME = config["collection_name"]
+    MODEL_NAME = config["model_name"]
+
+    with open(config_path_question, "r") as file:
+        config_question_db = yaml.safe_load(file)
+
+    CHROMA_PATH_QUESTION = config_question_db["chroma_path"]
+    COLLECTION_NAME_QUESTION = config_question_db["collection_name"]
+    MODEL_NAME_QUESTION = config_question_db["model_name"]
+
+
+    # Создаём менеджер с кастомной функцией эмбеддингов
+    embedding_function = CustomEmbeddingFunction(model_name=MODEL_NAME)
+
+    # Инициализируем менеджер с кастомными эмбеддингами
+    model_chroma = ChromaDBManager(
+        storage_path=CHROMA_PATH,
+        collection_name=COLLECTION_NAME,
+        embedding_function=embedding_function
+    )
+
+    # Инициализируем менеджер с вопросами
+    questions_chroma = ChromaDBManager(
+        storage_path=CHROMA_PATH_QUESTION,
+        collection_name=COLLECTION_NAME_QUESTION,
+    )
+
+    # Извлечение всех документов
+    all_documents = questions_chroma.collection.get()
+    doc_ids = all_documents.get("ids", [])
+    doc_metadata = all_documents.get("metadatas", [])
+    len(doc_ids)
+
+    # %%
+    # doc_ids_batch = doc_ids
+    # doc_metadata_batch = doc_metadata
+
+    # %%
+    result = {}
+
+    # # Прогон идет по БД с вопросами
+    for doc_id, metadata in tqdm(zip(doc_ids, doc_metadata)): 
+
+        question_1 = eval(metadata['questions'])['question_1']
+        question_2 = eval(metadata['questions'])['question_2']
+        answer_1 = eval(metadata['questions'])['answer_1']
+        answer_2 = eval(metadata['questions'])['answer_2']
+        query_results_1 = model_chroma.query(question_1, n_results=3)
+        query_results_2 = model_chroma.query(question_2, n_results=3)
+        
+        position_1, position_2 = False, False
+
+        validation_1 = doc_id in query_results_1['ids'][0]
+        if validation_1:
+            position_1 = query_results_1['ids'][0].index(doc_id)
+
+        validation_2 = doc_id in query_results_2['ids'][0]
+        if validation_2:
+            position_2 = query_results_2['ids'][0].index(doc_id)
+        
+        temp_res = {
+            doc_id: {
+                "question_1": {
+                        "search_ids": query_results_1['ids'],
+                        "validation": validation_1,
+                        "position": position_1,
+                        "question": question_1,
+                        "answer": answer_1,
+                                },
+                "question_2": {
+                        "search_ids": query_results_2['ids'],
+                        "validation": validation_2,
+                        "position": position_2,
+                        "question": question_2,
+                        "answer": answer_2,
+                }
+            }
+        }
+        result.update(temp_res)
+
+    output_filemane = f"benchmark/output_RAG/{COLLECTION_NAME}.json"
+
+    with open(output_filemane, "w", encoding="utf-8", errors="ignore") as f:
+        json.dump(result, f, indent=2, ensure_ascii=False)
+
+    # %% [markdown]
+    # # Расчет метрик
+
+    # %%
+    from benchmark.RAG_benchmark import VectorSearchMetrics
+
+    filename = f"benchmark/output_RAG/{COLLECTION_NAME}"
+    with open(f"{filename}.json", encoding="utf-8") as file:
+        data = json.load(file)  # Преобразование JSON в словарь
+
+    bench = VectorSearchMetrics(data)
+    metrics = bench.run()
+
+    pd.DataFrame(list(metrics.items()), columns=["metric", "value"]).to_excel(f"{filename}.xlsx", index=False)
+
+# %% [markdown]
+# # Составление единой таблицы сравнения
+
+# %%
+import os
+import pandas as pd
+
+# Путь к папке с Excel файлами
+folder_path = r'benchmark\output_RAG'
+
+# Список для хранения данных
+data = []
+
+# Перебираем все файлы в папке
+for filename in os.listdir(folder_path):
+    if filename.endswith('.xlsx'):
+        # Полный путь к файлу
+        file_path = os.path.join(folder_path, filename)
+        
+        # Читаем таблицу из файла
+        df = pd.read_excel(file_path)
+        
+        # Получаем имя модели из имени файла (без расширения)
+        model_name = os.path.splitext(filename)[0].replace("-embedding", '')
+        
+        # Добавляем столбец с названием модели
+        df['Model'] = model_name
+        
+        # Добавляем данные в общий список
+        data.append(df)
+
+# Объединяем все данные в одну таблицу
+result_df = pd.concat(data, ignore_index=True)
+
+# Переводим данные в удобный формат для сравнения
+pivot_df = result_df.pivot(index='metric', columns='Model', values='value')
+
+# Сортируем
+pivot_df = pivot_df.T.sort_values("Precision", ascending=False).T.reindex(["Precision", "Adjusted Score", "MRR", "First position accuracy"])
+
+# Сохраняем итоговую таблицу в новый Excel файл
+pivot_df.to_excel('benchmark/comparison_models.xlsx')

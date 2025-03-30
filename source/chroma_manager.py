@@ -68,8 +68,9 @@ class ChromaDBManager:
         # Добавляем обновлённый документ
         self.insert_document(document_id, new_text, new_metadata)
 
-    def add_unique_documents(self, document_id: str, document_text: str, metadata: Dict[str, Any] = None):
+    def __add_unique_documents(self, document_id: str, document_text: str, metadata: Dict[str, Any] = None):
         """
+        DON'T USE IT. IT WASN'T TESTED
         Добавляет только новые документы в коллекцию ChromaDB.
         :param documents: Список документов.
         :param ids: Список id документов.

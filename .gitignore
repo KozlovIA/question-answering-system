@@ -4,7 +4,12 @@ dataset
 *.pdf*
 *.docx*
 *.txt*
+*.xlsx*
+*.json*
 log
 help_prompts
 temp
 test.ipynb
+benckmark/test1
+benckmark/output_RAG
+benckmark/__pycache__

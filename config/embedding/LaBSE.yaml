@@ -1,0 +1,3 @@
+chroma_path: "./chroma_storage"
+collection_name: "LaBSE-embedding"
+model_name: "sentence-transformers/LaBSE"
