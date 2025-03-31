@@ -2,11 +2,12 @@ import gradio as gr
 from source.chroma_manager import ChromaDBManager
 from source.llm_manager import LMStudioClient
 
+
 class ChatInterface:
-    def __init__(self, chroma_path: str, collection_name: str, llm_api_url: str):
+    def __init__(self, chroma_config_path: str, llm_config_path: str):
         self.chat_history = []  # История сообщений
-        self.chroma_db = ChromaDBManager(storage_path=chroma_path, collection_name=collection_name)
-        self.llm_client = LMStudioClient(api_url=llm_api_url)
+        self.chroma_db = ChromaDBManager(config_path=chroma_config_path)
+        self.llm_client = LMStudioClient(config_path=llm_config_path)
         self.setup_interface()
     
     def send_message(self, message, use_rag):
@@ -18,16 +19,19 @@ class ChatInterface:
         """
         try:
             context = ""
+            system = ""
             if use_rag:
+                system = "Answer the user's question using context"
                 rag_results = self.chroma_db.query(query_text=message, n_results=2)
                 retrieved_docs = rag_results.get("documents", [[]])[0]
                 context = "\n".join(retrieved_docs)
+
             
-            full_prompt = f"Context: {context}\nUser: {message}\nAssistant:"
+            full_prompt = f"{system} \nUser: {message} \nContext: {context}"
             response = self.llm_client.post_completion(full_prompt)
             self.chat_history.append((message, response))
-        except Exception:
-            response = "Произошла непредвиденная ошибка."
+        except Exception as e:
+            response = f"Произошла ошибка: {str(e)}"
             self.chat_history.append((message, response))
         
         return self.chat_history, ""
@@ -60,5 +64,8 @@ class ChatInterface:
 
 # Создание и запуск интерфейса
 if __name__ == "__main__":
-    chat_ui = ChatInterface(chroma_path="./chroma_storage", collection_name="magic_document", llm_api_url="http://localhost:1234/v1/completions")
+    chat_ui = ChatInterface(
+        chroma_config_path="config/embedding/e5-large-v2.yaml", 
+        llm_config_path="config/model.yaml"
+    )
     chat_ui.launch()

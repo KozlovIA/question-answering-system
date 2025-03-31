@@ -2,29 +2,38 @@ import chromadb
 from typing import List, Dict, Any, Callable
 from sentence_transformers import SentenceTransformer
 from chromadb.utils import embedding_functions  
-# import os
+import os
+import yaml
 
-# os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 
 class ChromaDBManager:
-    def __init__(self, storage_path: str, collection_name: str, embedding_function=None):
+    def __init__(self, config_path: str):
         """
-        Инициализация клиента ChromaDB и загрузка коллекции.
-        :param storage_path: Путь к директории для хранения данных.
-        :param collection_name: Имя коллекции.
-        :param embedding_function: Функция эмбеддингов (по умолчанию OpenAI, если не передана).
+        Инициализация клиента ChromaDB и загрузка коллекции на основе конфигурационного файла.
+        :param config_path: Путь к YAML-файлу конфигурации.
         """
+        config = self.load_config(config_path)
+        storage_path = config.get("chroma_path", "./chroma_storage")
+        collection_name = config.get("collection_name", "default_collection")
+        model_name = config.get("model_name", "all-MiniLM-L6-v2")
+
         self.client = chromadb.PersistentClient(path=storage_path)
         
-        # Если embedding_function не передан, используем встроенную функцию эмбеддингов ChromaDB
-        if embedding_function is None:
-            embedding_function = embedding_functions.DefaultEmbeddingFunction()
-
+        # embedding_function = embedding_functions.DefaultEmbeddingFunction(model_name=model_name)
+        embedding_function = CustomEmbeddingFunction(model_name=model_name)
+        
         self.embedding_function = embedding_function  # Сохраняем функцию эмбеддингов как атрибут
         self.collection = self.client.get_or_create_collection(
             name=collection_name,
             embedding_function=embedding_function
         )
+    
+    @staticmethod
+    def load_config(file_path: str):
+        """Считывает YAML-файл конфигурации."""
+        with open(file_path, 'r') as file:
+            return yaml.load(file, Loader=yaml.FullLoader)
     
     def query(self, query_text: str, n_results: int = 2) -> Dict[str, Any]:
         """
@@ -115,21 +124,18 @@ class CustomEmbeddingFunction:
 
 if __name__ == "__main__":
 
-    import yaml
-    with open("config/chroma.yaml", "r") as file:
-        config = yaml.safe_load(file)
+    # with open("config/chroma.yaml", "r") as file:
+    #     config = yaml.safe_load(file)
 
-    CHROMA_PATH = config["chroma_path"]
-    COLLECTION_NAME = config["collection_name"]
-    MODEL_NAME = config["model_name"]
+    # CHROMA_PATH = config["chroma_path"]
+    # COLLECTION_NAME = config["collection_name"]
+    # MODEL_NAME = config["model_name"]
     # Создаём менеджер с кастомной функцией эмбеддингов
-    embedding_function = CustomEmbeddingFunction(model_name=MODEL_NAME)
+    # embedding_function = CustomEmbeddingFunction(model_name=MODEL_NAME)
 
     # Инициализируем менеджер с кастомными эмбеддингами
     db_manager = ChromaDBManager(
-        storage_path=CHROMA_PATH,
-        collection_name=COLLECTION_NAME,
-        embedding_function=embedding_function
+        config_path=r"E:\ImportantFiles\Documents\University\Magic App\config\embedding\e5-large-v2.yaml"
     )
     
     import json
