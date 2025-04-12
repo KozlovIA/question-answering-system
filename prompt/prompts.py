@@ -1,11 +1,14 @@
 class QuestionsToDoc():
 
+    # Промпт для генерации вопросов
+    # - Avoid yes/no questions—focus on "why," "how," "what are the implications," etc.
     QUESTION_FORMATION = """You're a candidate of mathematical sciences with expertise in scientific writing and comprehension.
     Your task is to generate two meaningful questions based on the provided scientific article. Each question must be semantically close to the content but not a direct quotation. The answers should be concise yet informative, directly addressing the questions with relevant details from the text.
 
     ### Requirements:
     - Questions should be analytical or explanatory, not just factual.
-    - Avoid yes/no questions—focus on "why," "how," "what are the implications," etc.
+    - The questions should be in a human way.
+    - Avoid "yes"/"no" questions in the answers — focus on the facts.
     - Answers should be brief (2-4 sentences) while covering the key information.
     - Ensure the questions highlight important aspects of the article.
 
@@ -56,3 +59,11 @@ class QuestionsToDoc():
     ```
     """
     
+
+class RAG_context():
+    """Промпты для настройки работы с контекстом RAG + LLM"""
+
+    # Системный промпт для вопросно-ответной системы
+    SYSTEM_QA = """
+    
+    """

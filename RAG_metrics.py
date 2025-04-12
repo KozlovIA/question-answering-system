@@ -13,20 +13,20 @@ import pandas as pd
 CONFIG_PATH_LIST = [
     "config/embedding/all-MiniLM-L6-v2.yaml",
     "config/embedding/all-mpnet-base-v2.yaml",
-    # "config/embedding/paraphrase-multilingual-MiniLM-L12-v2.yaml",
-    # "config/embedding/multi-qa-mpnet-base-dot-v1.yaml",
+    # "config/embedding/paraphrase-multilingual-MiniLM-L12-v2.yaml",         ### не юзали 
+    # "config/embedding/multi-qa-mpnet-base-dot-v1.yaml",       ### не юзали  
     "config/embedding/LaBSE.yaml",
-    # "config/embedding/distiluse-base-multilingual-cased-v1.yaml",
+    # "config/embedding/distiluse-base-multilingual-cased-v1.yaml",     ### не юзали 
     "config/embedding/msmarco-distilbert-base-v4.yaml",
     "config/embedding/multi-qa-MiniLM-L6-cos-v1.yaml",
     "config/embedding/paraphrase-multilingual-mpnet-base-v2.yaml",
-    # "config/embedding/stsb-xlm-r-multilingual.yaml",
+    # "config/embedding/stsb-xlm-r-multilingual.yaml",      ### не юзали 
     "config/embedding/gtr-t5-large.yaml",
     "config/embedding/e5-large-v2.yaml",
     "config/embedding/multilingual-e5-large.yaml"
-]
+] 
 
-config_path_question = "config/embedding/questions_gen.yaml"
+CONFIG_PATH_QUESTION = "config/embedding/questions_gen.yaml"
 
 
     # %%
@@ -38,29 +38,15 @@ for CONFIG_PATH in CONFIG_PATH_LIST:
     COLLECTION_NAME = config["collection_name"]
     MODEL_NAME = config["model_name"]
 
-    with open(config_path_question, "r") as file:
-        config_question_db = yaml.safe_load(file)
-
-    CHROMA_PATH_QUESTION = config_question_db["chroma_path"]
-    COLLECTION_NAME_QUESTION = config_question_db["collection_name"]
-    MODEL_NAME_QUESTION = config_question_db["model_name"]
-
 
     # Создаём менеджер с кастомной функцией эмбеддингов
     embedding_function = CustomEmbeddingFunction(model_name=MODEL_NAME)
 
     # Инициализируем менеджер с кастомными эмбеддингами
-    model_chroma = ChromaDBManager(
-        storage_path=CHROMA_PATH,
-        collection_name=COLLECTION_NAME,
-        embedding_function=embedding_function
-    )
+    model_chroma = ChromaDBManager(CONFIG_PATH)
 
     # Инициализируем менеджер с вопросами
-    questions_chroma = ChromaDBManager(
-        storage_path=CHROMA_PATH_QUESTION,
-        collection_name=COLLECTION_NAME_QUESTION,
-    )
+    questions_chroma = ChromaDBManager(CONFIG_PATH_QUESTION)
 
     # Извлечение всех документов
     all_documents = questions_chroma.collection.get()

@@ -3,6 +3,7 @@ chroma_storage
 dataset
 *.pdf*
 *.docx*
+*.pptx*
 *.txt*
 *.xlsx*
 *.json*

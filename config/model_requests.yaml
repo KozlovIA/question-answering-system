@@ -1,0 +1,7 @@
+api_url: "http://localhost:1234/v1/completions"
+temperature: 0
+top_k: 35
+top_p: null
+n_predict: 400 
+max_tokens: null
+stop: null

@@ -84,16 +84,17 @@ class ChromaDBManager:
         :param documents: Список документов.
         :param ids: Список id документов.
         """
-        existing_ids = set(self.collection.get(ids=document_id, include=[])['ids'])
+        pass
+        # existing_ids = set(self.collection.get(ids=document_id, include=[])['ids'])
         
-        new_docs = [(doc, doc_id) for doc, doc_id in zip(document_text, document_id) if doc_id not in existing_ids]
+        # new_docs = [(doc, doc_id) for doc, doc_id in zip(document_text, document_id) if doc_id not in existing_ids]
         
-        if new_docs:
-            new_documents, new_ids = zip(*new_docs)
-            self.insert_document(document_id, document_text, metadata)
-            return f"Добавлено {len(new_ids)} новых документов"
-        else:
-            return "Нет новых документов для добавления"
+        # if new_docs:
+        #     new_documents, new_ids = zip(*new_docs)
+        #     self.insert_document(document_id, document_text, metadata)
+        #     return f"Добавлено {len(new_ids)} новых документов"
+        # else:
+        #     return "Нет новых документов для добавления"
 
     
     def get_collection_keys(self) -> List[str]:

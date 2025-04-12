@@ -19,9 +19,9 @@ class ChatInterface:
         """
         try:
             context = ""
-            system = ""
+            system = "Answer in Russian language"
             if use_rag:
-                system = "Answer the user's question using context"
+                system = "Answer the user's question using context. Answer in Russian language"
                 rag_results = self.chroma_db.query(query_text=message, n_results=2)
                 retrieved_docs = rag_results.get("documents", [[]])[0]
                 context = "\n".join(retrieved_docs)
@@ -65,7 +65,8 @@ class ChatInterface:
 # Создание и запуск интерфейса
 if __name__ == "__main__":
     chat_ui = ChatInterface(
-        chroma_config_path="config/embedding/e5-large-v2.yaml", 
+        # chroma_config_path="config/embedding/e5-large-v2.yaml", 
+        chroma_config_path="config/embedding/multilingual-e5-large.yaml", 
         llm_config_path="config/model.yaml"
     )
     chat_ui.launch()
