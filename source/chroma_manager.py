@@ -77,26 +77,6 @@ class ChromaDBManager:
         # Добавляем обновлённый документ
         self.insert_document(document_id, new_text, new_metadata)
 
-    def __add_unique_documents(self, document_id: str, document_text: str, metadata: Dict[str, Any] = None):
-        """
-        DON'T USE IT. IT WASN'T TESTED
-        Добавляет только новые документы в коллекцию ChromaDB.
-        :param documents: Список документов.
-        :param ids: Список id документов.
-        """
-        pass
-        # existing_ids = set(self.collection.get(ids=document_id, include=[])['ids'])
-        
-        # new_docs = [(doc, doc_id) for doc, doc_id in zip(document_text, document_id) if doc_id not in existing_ids]
-        
-        # if new_docs:
-        #     new_documents, new_ids = zip(*new_docs)
-        #     self.insert_document(document_id, document_text, metadata)
-        #     return f"Добавлено {len(new_ids)} новых документов"
-        # else:
-        #     return "Нет новых документов для добавления"
-
-    
     def get_collection_keys(self) -> List[str]:
         """
         Возвращает ключи данных, содержащихся в коллекции.
@@ -104,6 +84,50 @@ class ChromaDBManager:
         """
         sample_query = self.query("test", 1)
         return list(sample_query.keys()) if sample_query else []
+    
+
+    def get_all_ids(self) -> List[str]:
+        """
+        Возвращает список всех идентификаторов в коллекции.
+        :return: Список строк-идентификаторов.
+        """
+        results = self.collection.get()
+        return results.get("ids", [])
+
+    def get_all_documents(self) -> Dict[str, Dict[str, Any]]:
+        """
+        Возвращает все документы в виде словаря: {id: {"document": ..., "metadata": ...}, ...}
+        """
+        results = self.collection.get(include=["documents", "metadatas"], limit=None)
+        return {
+            doc_id: {
+                "document": doc,
+                "metadata": meta
+            }
+            for doc_id, doc, meta in zip(
+                results.get("ids", []),
+                results.get("documents", []),
+                results.get("metadatas", [])
+            )
+        }
+
+    def get_documents_by_ids(self, ids: List[str]) -> Dict[str, Dict[str, Any]]:
+        """
+        Возвращает документы по списку идентификаторов в виде словаря: {id: {"document": ..., "metadata": ...}, ...}
+        """
+        results = self.collection.get(ids=ids, include=["documents", "metadatas"])
+        return {
+            doc_id: {
+                "document": doc,
+                "metadata": meta
+            }
+            for doc_id, doc, meta in zip(
+                results.get("ids", []),
+                results.get("documents", []),
+                results.get("metadatas", [])
+            )
+        }
+
     
 
 class CustomEmbeddingFunction:

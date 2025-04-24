@@ -10,17 +10,14 @@ class TinyDB_manager:
         """Возвращает список всех уникальных id"""
         return list({entry["id"] for entry in self.db.all() if "id" in entry})
 
-    def save_result(self, id: Any, search_id: Optional[Any], question: str, response: str) -> None:
+    def save_result(self, record: Dict[str, Any], search_id: Optional[Any] = None) -> None:
         """
-        Сохраняет результат. Если search_id задан — обновляет по нему,
-        иначе обновляет по самому id.
+        Сохраняет результат в базу. Принимает готовый словарь записи.
+        Обязательно: в словаре должен быть ключ 'id'.
         """
-        key = search_id if search_id is not None else id
-        record = {
-            "id": id,
-            "question": question,
-            "response": response
-        }
+        if "id" not in record:
+            raise ValueError("Поле 'id' обязательно в record")
+        key = search_id if search_id is not None else record["id"]
         self.db.upsert(record, self.Result.id == key)
 
     def get_id(self, id: Any) -> Optional[Dict[str, Any]]:

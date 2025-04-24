@@ -64,6 +64,26 @@ class RAG_context():
     """Промпты для настройки работы с контекстом RAG + LLM"""
 
     # Системный промпт для вопросно-ответной системы
-    SYSTEM_QA = """
-    
+    SYSTEM_QA = """It is necessary to clearly answer the user's question.  
+    Use only the information presented in context. 
+    Important!!!
+    If there is no relevant information in the context, please reply: 
+    There is no response.
+
+    ### QUESTION 
+    {question}
+
+    ### CONTEXT 
+    {context}
+    """
+
+    SYSTEM_QA_SHORT = """It is necessary to clearly answer the user's question.  
+    If there is no relevant information in the context, please reply: 
+    There is no response.
+
+    ### QUESTION 
+    {question}
+
+    ### CONTEXT 
+    {context}
     """

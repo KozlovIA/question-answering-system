@@ -32,15 +32,18 @@ class LMStudioClient:
         """Очищает контекст общения."""
         self.context = []
 
-    def post_completion(self, user_input: str) -> str:
+    def post_completion(self, user_input: str, metadata: bool=False) -> str:
         """Отправляет запрос к модели и получает ответ."""
         self.update_context(user_input)
         response = self.llm.invoke(self.context)
         self.context.append(response)  # Добавляем ответ в контекст
+        if metadata:
+            return response
         return response.content
+        
 
 if __name__ == "__main__":
-    CONFIG_PATH = "config/model.yaml"
+    CONFIG_PATH = "config/LLM/qwen2.5_7b_instruct.yaml"
     client = LMStudioClient(CONFIG_PATH)
     
     user_input = "Who created you?"

@@ -4,5 +4,5 @@ temperature: 0
 top_k: 35
 top_p: null
 n_predict: 400 
-max_tokens: 800
+max_tokens: 200
 stop: null

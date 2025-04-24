@@ -11,15 +11,15 @@ import pandas as pd
 
 # %%
 CONFIG_PATH_LIST = [
-    "config/embedding/all-MiniLM-L6-v2.yaml",
-    "config/embedding/all-mpnet-base-v2.yaml",
-    # "config/embedding/paraphrase-multilingual-MiniLM-L12-v2.yaml",         ### не юзали 
-    # "config/embedding/multi-qa-mpnet-base-dot-v1.yaml",       ### не юзали  
-    "config/embedding/LaBSE.yaml",
-    # "config/embedding/distiluse-base-multilingual-cased-v1.yaml",     ### не юзали 
-    "config/embedding/msmarco-distilbert-base-v4.yaml",
-    "config/embedding/multi-qa-MiniLM-L6-cos-v1.yaml",
-    "config/embedding/paraphrase-multilingual-mpnet-base-v2.yaml",
+    # "config/embedding/all-MiniLM-L6-v2.yaml",
+    # "config/embedding/all-mpnet-base-v2.yaml",
+    # # "config/embedding/paraphrase-multilingual-MiniLM-L12-v2.yaml",         ### не юзали 
+    # # "config/embedding/multi-qa-mpnet-base-dot-v1.yaml",       ### не юзали  
+    # "config/embedding/LaBSE.yaml",
+    # # "config/embedding/distiluse-base-multilingual-cased-v1.yaml",     ### не юзали 
+    # "config/embedding/msmarco-distilbert-base-v4.yaml",
+    # "config/embedding/multi-qa-MiniLM-L6-cos-v1.yaml",
+    # "config/embedding/paraphrase-multilingual-mpnet-base-v2.yaml",
     # "config/embedding/stsb-xlm-r-multilingual.yaml",      ### не юзали 
     "config/embedding/gtr-t5-large.yaml",
     "config/embedding/e5-large-v2.yaml",
@@ -31,6 +31,7 @@ CONFIG_PATH_QUESTION = "config/embedding/questions_gen.yaml"
 
     # %%
 for CONFIG_PATH in CONFIG_PATH_LIST:
+    print(CONFIG_PATH)
     with open(CONFIG_PATH, "r") as file:
         config = yaml.safe_load(file)
 
@@ -65,11 +66,11 @@ for CONFIG_PATH in CONFIG_PATH_LIST:
     for doc_id, metadata in tqdm(zip(doc_ids, doc_metadata)): 
 
         question_1 = eval(metadata['questions'])['question_1']
-        question_2 = eval(metadata['questions'])['question_2']
+        # question_2 = eval(metadata['questions'])['question_2']
         answer_1 = eval(metadata['questions'])['answer_1']
-        answer_2 = eval(metadata['questions'])['answer_2']
+        # answer_2 = eval(metadata['questions'])['answer_2']
         query_results_1 = model_chroma.query(question_1, n_results=3)
-        query_results_2 = model_chroma.query(question_2, n_results=3)
+        # query_results_2 = model_chroma.query(question_2, n_results=3)
         
         position_1, position_2 = False, False
 
@@ -77,9 +78,9 @@ for CONFIG_PATH in CONFIG_PATH_LIST:
         if validation_1:
             position_1 = query_results_1['ids'][0].index(doc_id)
 
-        validation_2 = doc_id in query_results_2['ids'][0]
-        if validation_2:
-            position_2 = query_results_2['ids'][0].index(doc_id)
+        # validation_2 = doc_id in query_results_2['ids'][0]
+        # if validation_2:
+        #     position_2 = query_results_2['ids'][0].index(doc_id)
         
         temp_res = {
             doc_id: {
@@ -90,13 +91,13 @@ for CONFIG_PATH in CONFIG_PATH_LIST:
                         "question": question_1,
                         "answer": answer_1,
                                 },
-                "question_2": {
-                        "search_ids": query_results_2['ids'],
-                        "validation": validation_2,
-                        "position": position_2,
-                        "question": question_2,
-                        "answer": answer_2,
-                }
+                # "question_2": {
+                #         "search_ids": query_results_2['ids'],
+                #         "validation": validation_2,
+                #         "position": position_2,
+                #         "question": question_2,
+                #         "answer": answer_2,
+                # }
             }
         }
         result.update(temp_res)
