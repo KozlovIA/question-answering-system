@@ -42,6 +42,41 @@ class AnswerEvaluator:
 
     def rouge_l(self, ref, pred):
         return self.rouge.get_scores(pred, ref)[0]['rouge-l']['f']
+    
+    @staticmethod
+    def _get_ngrams(n: int, text: List[str]) -> Counter:
+        """Получить n-граммы из списка токенов"""
+        ngrams = zip(*[text[i:] for i in range(n)])
+        return Counter(ngrams)
+
+    def rouge_n(self, reference: str, prediction: str, n: int = 1) -> float:
+        """
+        Вычисляет ROUGE-N (например, ROUGE-1, ROUGE-2).
+        
+        Args:
+            reference (str): Эталонный текст.
+            prediction (str): Предсказанный текст.
+            n (int): Размер n-граммы.
+        
+        Returns:
+            float: Значение ROUGE-N recall.
+        """
+        ref_tokens = reference.split()
+        pred_tokens = prediction.split()
+
+        ref_ngrams = self._get_ngrams(n, ref_tokens)
+        pred_ngrams = self._get_ngrams(n, pred_tokens)
+
+        # Число общих n-грамм
+        overlap = sum((ref_ngrams & pred_ngrams).values())
+
+        # Число всех n-грамм в эталоне
+        total_ref_ngrams = sum(ref_ngrams.values())
+
+        if total_ref_ngrams == 0:
+            return 0.0
+        
+        return overlap / total_ref_ngrams
 
     def bleu(self, ref, pred):
         ref_tokens = word_tokenize(ref.lower())
@@ -76,7 +111,7 @@ class AnswerEvaluator:
         
     @staticmethod
     def aggregate_metrics(results):
-        keys = ["f1", "rouge_l", "bleu", "cosine_similarity", "bertscore_f1", "quality_score"]
+        keys = ["f1", "rouge_l", "rouge_n", "bleu", "cosine_similarity", "bertscore_f1", "quality_score"]
         metrics_avg = {}
         for key in keys:
             values = [res[key] for res in results]
@@ -87,12 +122,13 @@ class AnswerEvaluator:
     def compute_composite_score(res, weights=None):
         if weights is None:
             weights = {
-                "bertscore_f1": 0.3,
-                "cosine_similarity": 0.25,
+                "bertscore_f1": 0.2,
+                "cosine_similarity": 0.15,
                 "rouge_l": 0.2,
+                "rouge_n": 0.2,
                 "f1": 0.15,
-                "bleu": 0.05,
-                # "exact_match": 0.05,
+                "bleu": 0.1,
+                # "exact_match": 0.0
             }
         return sum(res[k] * weights[k] for k in weights)
 
@@ -117,6 +153,7 @@ class AnswerEvaluator:
                 # "exact_match": self.exact_match(ref, pred),
                 "f1": self.f1_score(ref, pred),
                 "rouge_l": self.rouge_l(ref, pred),
+                "rouge_n": self.rouge_n(ref, pred),
                 "bleu": self.bleu(ref, pred),
                 "cosine_similarity": self.cosine_sim(ref, pred),
             })
