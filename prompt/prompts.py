@@ -58,6 +58,56 @@ class QuestionsToDoc():
         ### Output
     ```
     """
+
+    CORRECTING_DICKTIONARY_ONE_QUESTION = """Correct the following data structure to the correct dictionary given in the format below.
+
+    ### Input:  
+    {input}  
+
+
+    ### Output (IMPORTANT! Do not add comments, do not add additional markup.):
+    {{
+        "question_1": "Generated question based on the article.",
+        "answer_1": "Generated answer, summarizing key details from the article.",
+    }}
+    
+    BAD RESULT!
+    ```json
+        ### Output
+    ```
+    BAD RESULT!
+    ```python
+        ### Output
+    ```
+    """
+
+    TRANSLATE_TO_RUSSIAN = """Вы кандидат математических наук с опытом в научном письме и понимании. Так же вы прекрасно владеете переводом научных текстов с английского на русский язык.
+    
+    Необходимо перевести на русский язык вопрос по документу. 
+    В вопросе не ссылайся на статью. 
+    Вопрос: {question}
+
+    Необходимо перевести на русский язык ответ на вопрос по документу на основе контекста документа
+    Ответ: {answer}
+
+    Ты можешь использовать исходный документ для лучшего понимания контекста вопроса и ответа.
+    ИСХОДНЫЙ ТЕКСТ (не переводи это): {doc}
+
+    ### Output (IMPORTANT! Do not add comments, do not add additional markup.):
+    {{
+        "question_1": "Вопрос на русском языке",
+        "answer_1": "Ответ на русском языке",
+    }}
+    
+    BAD RESULT!
+    ```json
+        ### Output
+    ```
+    BAD RESULT!
+    ```python
+        ### Output
+    ```
+    """
     
 
 class RAG_context():

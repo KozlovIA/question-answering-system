@@ -1,8 +1,8 @@
 api_url: "http://localhost:1234/v1"
-model_name: "qwen2.5-7b-instruct"
-temperature: 0.6
+model_name: "phi-3.1-mini-128k-instruct@q4_k_m"
+temperature: 0
 top_k: 35
 top_p: null
 n_predict: 400 
-max_tokens: 500
+max_tokens: 200
 stop: null

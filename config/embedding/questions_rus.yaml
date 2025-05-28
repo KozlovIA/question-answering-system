@@ -1,0 +1,6 @@
+# База данных с сгенерированными вопросами в метаданных
+chroma_path: "./chroma_storage"
+collection_name: "questions_to_QA_RUS"
+model_name: "all-MiniLM-L6-v2"
+# model_path: "C:/Users/Igorexy/.lmstudio/models/MaziyarPanahi/Qwen2.5-7B-Instruct-GGUF/Qwen2.5-7B-Instruct.Q4_K_S.gguf"
+# token_treshold: 8000
