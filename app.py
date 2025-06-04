@@ -1,6 +1,26 @@
 import gradio as gr
 from source.chroma_manager import ChromaDBManager
 from source.llm_manager import LMStudioClient
+from prompt.prompts import QA_context
+
+from gradio.themes.utils import colors
+from gradio.themes.base import Base
+
+class LightTheme(Base):
+    def __init__(self):
+        super().__init__(
+            primary_hue=colors.blue,
+            neutral_hue=colors.gray,
+            font=["Arial", "sans-serif"]
+        )
+        self.set(
+            body_background_fill="white",
+            body_text_color="black",
+            block_background_fill="white",
+            block_border_color="lightgray",
+            button_primary_background_fill="deepskyblue",
+            button_primary_text_color="white"
+        )
 
 
 class ChatInterface:
@@ -18,16 +38,16 @@ class ChatInterface:
         :return: Ответ модели и обновлённую историю чата.
         """
         try:
-            context = ""
-            system = "Answer in Russian language"
+            system = QA_context.SYSTEM_QA_WITHOUT_RAG.format(question=message)
             if use_rag:
-                system = "Answer the user's question using context. Answer in Russian language"
+                
                 rag_results = self.chroma_db.query(query_text=message, n_results=2)
                 retrieved_docs = rag_results.get("documents", [[]])[0]
                 context = "\n".join(retrieved_docs)
-
+                
+                system = QA_context.SYSTEM_QA_SHORT_RUS.format(question=message, context=context)
             
-            full_prompt = f"{system} \nUser: {message} \nContext: {context}"
+            full_prompt = system
             response = self.llm_client.post_completion(full_prompt)
             self.chat_history.append((message, response))
         except Exception as e:
@@ -44,7 +64,7 @@ class ChatInterface:
     
     def setup_interface(self):
         """Настраивает интерфейс Gradio."""
-        with gr.Blocks() as self.app:
+        with gr.Blocks(theme=LightTheme()) as self.app:      # theme=gr.themes.Default()
             self.chatbot = gr.Chatbot(height=800)
             self.input_text = gr.Textbox(label="Введите сообщение")
             self.use_rag_checkbox = gr.Checkbox(label="Использовать RAG", value=False)
@@ -60,13 +80,13 @@ class ChatInterface:
     
     def launch(self):
         """Запускает интерфейс."""
-        self.app.launch(share=True)
+        self.app.launch()#share=True)
 
 # Создание и запуск интерфейса
 if __name__ == "__main__":
     chat_ui = ChatInterface(
         # chroma_config_path="config/embedding/e5-large-v2.yaml", 
         chroma_config_path="config/embedding/multilingual-e5-large.yaml", 
-        llm_config_path="config/model.yaml"
+        llm_config_path="config/LLM/qwen3-1.7b.yaml"
     )
     chat_ui.launch()

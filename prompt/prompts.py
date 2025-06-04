@@ -103,7 +103,7 @@ class QuestionsToDoc():
     """
     
 
-class RAG_context():
+class QA_context():
     """Промпты для настройки работы с контекстом RAG + LLM"""
 
     # Системный промпт для вопросно-ответной системы
@@ -139,5 +139,33 @@ class RAG_context():
     ### КОНТЕКСТ 
     {context}
 
+    FORMAT FOR WRITING FORMULAS IN YOUR ANSWER
+    <div>
+    <p>latex_formula</p>
+    </div>
+    EXAMPLE:
+    </div>
+    <p>$$e^{{i \pi}} + 1 = 0$$</p>
+    <p>inline: \( E = mc^2 \)</p>
+    </div>
+
     ### Ответ необходимо дать на русском языке.
     """
+
+    SYSTEM_QA_WITHOUT_RAG = """Clearly answer the user's question in the language of their request.
+
+    User: {question} 
+
+
+    
+    FORMAT FOR WRITING FORMULAS IN YOUR ANSWER
+    <div>
+    <p>latex_formula</p>
+    </div>
+    EXAMPLE:
+    </div>
+    <p>$$e^{{i \pi}} + 1 = 0$$</p>
+    <p>inline: \( E = mc^2 \)</p>
+    </div>
+    """
+    
