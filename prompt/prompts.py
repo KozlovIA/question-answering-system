@@ -120,13 +120,24 @@ class RAG_context():
     {context}
     """
 
-    SYSTEM_QA_SHORT = """It is necessary to clearly answer the user's question.  
-    If there is no relevant information in the context, please reply: 
-    There is no response.
+    SYSTEM_QA_SHORT = """It is necessary to clearly answer the user's question.
+    If there is no relevant information in the context, please reply: There is no response.
 
     ### QUESTION 
     {question}
 
     ### CONTEXT 
     {context}
+    """
+
+    SYSTEM_QA_SHORT_RUS = """Необходимо четко ответить на вопрос пользователя на основе контекста.
+    Если в контексте нет соответствующей информации, пожалуйста, ответьте: Ответа нет.
+
+    ### ВОПРОС 
+    {question}
+
+    ### КОНТЕКСТ 
+    {context}
+
+    ### Ответ необходимо дать на русском языке.
     """

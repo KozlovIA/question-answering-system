@@ -5,28 +5,33 @@ import yaml
 import sys
 import json 
 import pandas as pd
+import os
+
+
+LANG = '_RUS'
+# LANG = ''
 
 # %% [markdown]
 # ### config
 
 # %%
 CONFIG_PATH_LIST = [
-    # "config/embedding/all-MiniLM-L6-v2.yaml",
-    # "config/embedding/all-mpnet-base-v2.yaml",
-    # # "config/embedding/paraphrase-multilingual-MiniLM-L12-v2.yaml",         ### не юзали 
+    "config/embedding/all-MiniLM-L6-v2.yaml",
+    "config/embedding/all-mpnet-base-v2.yaml",
+    # "config/embedding/paraphrase-multilingual-MiniLM-L12-v2.yaml",         ### не юзали 
     # # "config/embedding/multi-qa-mpnet-base-dot-v1.yaml",       ### не юзали  
-    # "config/embedding/LaBSE.yaml",
+    "config/embedding/LaBSE.yaml",
     # # "config/embedding/distiluse-base-multilingual-cased-v1.yaml",     ### не юзали 
     # "config/embedding/msmarco-distilbert-base-v4.yaml",
-    # "config/embedding/multi-qa-MiniLM-L6-cos-v1.yaml",
-    # "config/embedding/paraphrase-multilingual-mpnet-base-v2.yaml",
+    "config/embedding/multi-qa-MiniLM-L6-cos-v1.yaml",
+    "config/embedding/paraphrase-multilingual-mpnet-base-v2.yaml",
     # "config/embedding/stsb-xlm-r-multilingual.yaml",      ### не юзали 
-    "config/embedding/gtr-t5-large.yaml",
+    # "config/embedding/gtr-t5-large.yaml",
     "config/embedding/e5-large-v2.yaml",
     "config/embedding/multilingual-e5-large.yaml"
 ] 
 
-CONFIG_PATH_QUESTION = "config/embedding/questions_gen.yaml"
+CONFIG_PATH_QUESTION = "config/embedding/questions_rus.yaml"
 
 
     # %%
@@ -102,7 +107,9 @@ for CONFIG_PATH in CONFIG_PATH_LIST:
         }
         result.update(temp_res)
 
-    output_filemane = f"benchmark/output_RAG/{COLLECTION_NAME}.json"
+    os.makedirs(f"benchmark/output_RAG{LANG}", exist_ok=True)
+
+    output_filemane = f"benchmark/output_RAG{LANG}/{COLLECTION_NAME}.json"
 
     with open(output_filemane, "w", encoding="utf-8", errors="ignore") as f:
         json.dump(result, f, indent=2, ensure_ascii=False)
@@ -113,7 +120,7 @@ for CONFIG_PATH in CONFIG_PATH_LIST:
     # %%
     from benchmark.RAG_benchmark import VectorSearchMetrics
 
-    filename = f"benchmark/output_RAG/{COLLECTION_NAME}"
+    filename = f"benchmark/output_RAG{LANG}/{COLLECTION_NAME}"
     with open(f"{filename}.json", encoding="utf-8") as file:
         data = json.load(file)  # Преобразование JSON в словарь
 
@@ -130,7 +137,7 @@ import os
 import pandas as pd
 
 # Путь к папке с Excel файлами
-folder_path = r'benchmark\output_RAG'
+folder_path = fr'benchmark\output_RAG{LANG}'
 
 # Список для хранения данных
 data = []
@@ -163,4 +170,4 @@ pivot_df = result_df.pivot(index='metric', columns='Model', values='value')
 pivot_df = pivot_df.T.sort_values("Precision", ascending=False).T.reindex(["Precision", "Adjusted Score", "MRR", "First position accuracy"])
 
 # Сохраняем итоговую таблицу в новый Excel файл
-pivot_df.to_excel('benchmark/comparison_models.xlsx')
+pivot_df.to_excel(f'benchmark/comparison_models{LANG}.xlsx')

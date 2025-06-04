@@ -2,7 +2,7 @@ api_url: "http://localhost:1234/v1"
 model_name: "qwen3-1.7b"
 temperature: 0
 top_k: 35
-top_p: null
+top_p: 0.75
 n_predict: 400 
-max_tokens: 200
+max_tokens: 1000
 stop: null
