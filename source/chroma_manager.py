@@ -127,6 +127,41 @@ class ChromaDBManager:
                 results.get("metadatas", [])
             )
         }
+    
+    def get_full_collection(self, include_embeddings: bool = False) -> Dict[str, Dict[str, Any]]:
+        """
+        Возвращает всю коллекцию: документы, метаданные и (опционально) эмбеддинги.
+        """
+        include = ["documents", "metadatas"]
+        if include_embeddings:
+            include.append("embeddings")
+
+        results = self.collection.get(include=include, limit=None)
+
+        output = {}
+        if include_embeddings:
+            for doc_id, doc, meta, emb in zip(
+                results.get("ids", []),
+                results.get("documents", []),
+                results.get("metadatas", []),
+                results.get("embeddings", [])
+            ):
+                output[doc_id] = {
+                    "document": doc,
+                    "metadata": meta,
+                    "embedding": emb
+                }
+        else:
+            for doc_id, doc, meta in zip(
+                results.get("ids", []),
+                results.get("documents", []),
+                results.get("metadatas", [])
+            ):
+                output[doc_id] = {
+                    "document": doc,
+                    "metadata": meta
+                }
+        return output
 
     
 

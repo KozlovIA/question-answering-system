@@ -128,6 +128,16 @@ class QA_context():
 
     ### CONTEXT 
     {context}
+
+    FORMAT FOR WRITING FORMULAS IN YOUR ANSWER
+    <div>
+    <p>latex_formula</p>
+    </div>
+    EXAMPLE:
+    </div>
+    <p>$$e^{{i \pi}} + 1 = 0$$</p>
+    <p>inline: $$\( E = mc^2 \)$$</p>
+    </div>
     """
 
     SYSTEM_QA_SHORT_RUS = """Необходимо четко ответить на вопрос пользователя на основе контекста.
@@ -144,10 +154,11 @@ class QA_context():
     <p>latex_formula</p>
     </div>
     EXAMPLE:
-    </div>
+    <div>
     <p>$$e^{{i \pi}} + 1 = 0$$</p>
-    <p>inline: \( E = mc^2 \)</p>
     </div>
+    inline: Учитывай, что inline формулы не отображаются в интерфейсе; Все элементы в формате latex должны быть отображены как блочные формулы.
+    
 
     ### Ответ необходимо дать на русском языке.
     """

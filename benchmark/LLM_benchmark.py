@@ -133,7 +133,7 @@ class AnswerEvaluator:
         return sum(res[k] * weights[k] for k in weights)
 
 
-    def evaluate(self):
+    def evaluate(self, lang='en', weights=None):
         results = []
         generation_times = []
 
@@ -159,7 +159,7 @@ class AnswerEvaluator:
             })
 
         # BERTScore (batched for efficiency)
-        P, R, F1 = bert_score(preds, refs, lang="en", rescale_with_baseline=True)
+        P, R, F1 = bert_score(preds, refs, lang=lang, rescale_with_baseline=False)   # rescale_with_baseline=False  
         for i in range(len(results)):
             results[i]["bertscore_f1"] = F1[i].item()
 
@@ -172,7 +172,7 @@ class AnswerEvaluator:
         }
 
         for res in results:
-            res["quality_score"] = self.compute_composite_score(res, weights=None)
+            res["quality_score"] = self.compute_composite_score(res, weights=weights)
 
         agg_metrics = self.aggregate_metrics(results)
 

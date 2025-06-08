@@ -1,8 +1,8 @@
 api_url: "http://localhost:1234/v1"
-model_name: "qwen3-1.7b"
+model_name: "deepseek-r1-0528-qwen3-8b@q3_k_l"
 temperature: 0
 top_k: 35
 top_p: 0.75
 n_predict: 400 
-max_tokens: 2000
+max_tokens: 500
 stop: null

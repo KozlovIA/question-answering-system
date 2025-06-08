@@ -15,6 +15,7 @@ input_files = [
     "llama-3.2-3b-instruct.json",
     "qwen3-1.7b.json",
     # "gemma-3-1b-it.yaml"
+    "deepseek_r1_distill_qwen_1.5b.json"
 ]
 
 # %%
@@ -29,7 +30,15 @@ for input_file in input_files:
     # Инициализация менеджера и оценщика
     tiny_manager = TinyDB_manager(tiny_config)
     bench = AnswerEvaluator(data=tiny_manager.export_json())
-    metrics = bench.evaluate()
+    metrics = bench.evaluate(lang='en', weights = {
+                "bertscore_f1": 0.3,
+                "cosine_similarity": 0.2,
+                "rouge_l": 0.1,
+                "rouge_n": 0.1,
+                "f1": 0.2,
+                "bleu": 0.1,
+                # "exact_match": 0.0
+            })
 
     # Объединение метрик и сохранение в Excel
     merged_dict = {**metrics[0], **metrics[2]}
