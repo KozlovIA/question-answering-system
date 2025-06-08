@@ -68,7 +68,7 @@ class ChatInterface():
     def send_message(self, message, use_rag):
         try:
             context = "The context is empty, use your knowledge"
-            system = QA_context.SYSTEM_QA_WITHOUT_RAG
+            system = f"{message}"
             retrieved_ids = []
             download_path = ""
 
