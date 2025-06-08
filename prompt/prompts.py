@@ -149,11 +149,11 @@ class QA_context():
     ### КОНТЕКСТ 
     {context}
 
-    FORMAT FOR WRITING FORMULAS IN YOUR ANSWER
+    ФОРМАТ ДЛЯ НАПИСАНИЯ ФОРМУЛ В ВАШЕМ ОТВЕТЕ
     <div>
     <p>latex_formula</p>
     </div>
-    EXAMPLE:
+    ПРИМЕР:
     <div>
     <p>$$e^{{i \pi}} + 1 = 0$$</p>
     </div>

@@ -81,7 +81,7 @@ class ChatInterface():
                 logging.debug(f"[RAG] Retrieved IDs: {retrieved_ids}")
 
                 context = "\n".join(retrieved_docs)
-                system = QA_context.SYSTEM_QA_WITHOUT_RAG.format(question=message, context=context) if self.lang == 'ru' else QA_context.SYSTEM_QA_SHORT.format(question=message, context=context)
+                system = QA_context.SYSTEM_QA_SHORT_RUS.format(question=message, context=context) if self.lang == 'ru' else QA_context.SYSTEM_QA_SHORT.format(question=message, context=context)
 
                 temp_dir = tempfile.mkdtemp()
                 for doc_id in retrieved_ids:
